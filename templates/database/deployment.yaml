@@ -1,0 +1,40 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "my-app.fullname" . }}-database
+spec:
+  replicas: {{ .Values.database.replicas }}
+  template:
+    spec:
+      containers:
+        - name: database
+          image: {{ .Values.database.image }}
+          ports:
+            - containerPort: {{ .Values.database.servicePort }}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "my-app.fullname" . }}-database
+spec:
+  ports:
+    - port: {{ .Values.database.servicePort }}
+  selector:
+    app: {{ include "my-app.fullname" . }}-database
+  type: {{ .Values.database.serviceType }}
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: {{ include "my-app.fullname" . }}-database
+spec:
+  replicas: {{ .Values.database.replicas }}
+  volumeClaimTemplates:
+    - metadata:
+        name: database-pvc
+      spec:
+        accessModes:
+          - ReadWriteOnce
+        resources:
+          requests:
+            storage: {{ .Values.database.persistence.storage }}
