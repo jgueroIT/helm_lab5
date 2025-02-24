@@ -1,0 +1,24 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "my-app.fullname" . }}-backend
+spec:
+  replicas: {{ .Values.backend.replicas }}
+  template:
+    spec:
+      containers:
+        - name: backend
+          image: {{ .Values.backend.image }}
+          ports:
+            - containerPort: {{ .Values.backend.servicePort }}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "my-app.fullname" . }}-backend
+spec:
+  ports:
+    - port: {{ .Values.backend.servicePort }}
+  selector:
+    app: {{ include "my-app.fullname" . }}-backend
+  type: {{ .Values.backend.serviceType }}
